@@ -1,0 +1,16 @@
+source https://nuget.org/api/v2
+
+nuget Rx-Core 2.2.5
+nuget Rx-Interfaces 2.2.5
+nuget Rx-Linq 2.2.5
+nuget Rx-Main
+nuget Rx-PlatformServices 2.2.5
+nuget Rx-Testing
+nuget FSharp.Formatting 2.8.0
+nuget FSharpVSPowerTools.Core 1.7.0
+nuget NUnit
+nuget NUnit.Runners
+nuget FAKE
+nuget SourceLink.Fake
+
+github fsharp/FAKE modules/Octokit/Octokit.fsx
