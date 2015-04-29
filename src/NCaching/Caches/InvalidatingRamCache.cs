@@ -5,14 +5,17 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using NCaching.Entries;
+using NCaching.Extensions;
 
 namespace NCaching.Caches {
-    public sealed class InvalidatingRamCache<TKey, TValue> :
-        RamCacheBase<TKey, TValue, InvalidateableCacheEntry<TValue>>, IInvalidatingCache<TKey, TValue> {
+    public sealed class InvalidatingRamCache<K, V> :
+        RamCacheBase<K, V, InvalidateableCacheEntry<V>>, IInvalidatingCache<K, V> {
+        private readonly IClock _clock;
         private readonly IDisposable _invalidation;
 
-        public InvalidatingRamCache(IScheduler invalidationScheduler, TimeSpan invalidationInterval,
-            IEqualityComparer<TKey> keyComparer) : base(keyComparer) {
+        public InvalidatingRamCache(IClock clock, IScheduler invalidationScheduler, TimeSpan invalidationInterval,
+            IEqualityComparer<K> keyComparer) : base(keyComparer) {
+            _clock = clock;
             _invalidation = new SingleAssignmentDisposable {
                 Disposable = Observable.Timer(TimeSpan.Zero, invalidationInterval, invalidationScheduler)
                     .Select(_ => Cache.Where(kvp => kvp.Value.Invalidation(kvp.Value)))
@@ -21,7 +24,7 @@ namespace NCaching.Caches {
             };
         }
 
-        public override void AddOrReplace(TKey key, TValue value) {
+        public override void AddOrReplace(K key, V value) {
             AddOrReplace(key, value, _ => false);
         }
 
@@ -29,9 +32,10 @@ namespace NCaching.Caches {
             _invalidation.Dispose();
         }
 
-        public void AddOrReplace(TKey key, TValue value, Func<CacheEntry<TValue>, bool> invalidation) {
+        public void AddOrReplace(K key, V value, Func<CacheEntry<V>, bool> invalidation) {
             var cacheEntry = InvalidateableCacheEntry.From(value, DateTimeOffset.UtcNow, invalidation);
-            Cache.AddOrUpdate(key, _ => cacheEntry, (_, e) => cacheEntry);
+
+            Cache.AddOrUpdate(key, _ => cacheEntry, (_, e) => e.UpdateWith(value, _clock.UtcNow));
         }
     }
 }

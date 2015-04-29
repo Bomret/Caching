@@ -33,9 +33,9 @@
     <Compile Include="Caches\ICache.cs" />
     <Compile Include="Caches\IInvalidatingCache.cs" />
     <Compile Include="Caches\InvalidatingRamCache.cs" />
-    <Compile Include="Caches\IRefreshingCache.cs" />
+    <Compile Include="Caches\ISelfUpdatingCache.cs" />
     <Compile Include="Caches\RamCacheBase.cs" />
-    <Compile Include="Caches\RefreshingRamCache.cs" />
+    <Compile Include="Caches\SelfUpdatingRamCache.cs" />
     <Compile Include="Caches\SimpleRamCache.cs" />
     <Compile Include="Entries\CacheEntry.cs" />
     <Compile Include="Entries\InvalidateableCacheEntry.cs" />
@@ -43,6 +43,7 @@
     <Compile Include="Extensions\InvalidateableCacheEntryExt.cs" />
     <Compile Include="Extensions\KeyValuePairExt.cs" />
     <Compile Include="Extensions\UpdateableCacheEntryExt.cs" />
+    <Compile Include="IClock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

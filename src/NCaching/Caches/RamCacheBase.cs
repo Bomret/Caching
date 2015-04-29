@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NCaching.Entries;
+using NCaching.Extensions;
 
 namespace NCaching.Caches {
-    public abstract class RamCacheBase<TKey, TValue, TEntry> : ICache<TKey, TValue> where TEntry : CacheEntry<TValue> {
+    public abstract class RamCacheBase<TKey, TValue, TEntry> : ICache<TKey, TValue, TEntry> where TEntry : CacheEntry<TValue> {
         protected readonly ConcurrentDictionary<TKey, TEntry> Cache;
 
         protected RamCacheBase(IEqualityComparer<TKey> keyComparer) {
@@ -23,7 +25,7 @@ namespace NCaching.Caches {
             Cache.Clear();
         }
 
-        public void InvalidateEntries(Func<CacheEntry<TValue>, bool> invalidation) {
+        public void InvalidateEntries(Func<TEntry, bool> invalidation) {
             var keysOfInvalidatedEntries = FindInvalidatedEntries(invalidation)
                 .Select(kvp => kvp.Key);
 
@@ -33,8 +35,18 @@ namespace NCaching.Caches {
         }
 
         protected IEnumerable<KeyValuePair<TKey, TEntry>> FindInvalidatedEntries(
-            Func<CacheEntry<TValue>, bool> invalidation) {
+            Func<TEntry, bool> invalidation) {
             return Cache.Where(kvp => invalidation(kvp.Value));
+        }
+
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() {
+            return Cache
+                .Select(kvp => kvp.MapV(e => e.Value))
+                .GetEnumerator();
+        }
+
+        public IEnumerator GetEnumerator() {
+            return Cache.GetEnumerator();
         }
     }
 }

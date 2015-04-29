@@ -13,13 +13,13 @@ namespace NCaching.Entries {
         }
     }
 
-    public class InvalidateableCacheEntry<TValue> : CacheEntry<TValue> {
-        internal InvalidateableCacheEntry(TValue value, DateTimeOffset timeAdded, DateTimeOffset? timeUpdated,
-            Func<CacheEntry<TValue>, bool> invalidation)
+    public class InvalidateableCacheEntry<V> : CacheEntry<V> {
+        internal InvalidateableCacheEntry(V value, DateTimeOffset timeAdded, DateTimeOffset? timeUpdated,
+            Func<InvalidateableCacheEntry<V>, bool> invalidation)
             : base(value, timeAdded, timeUpdated) {
             Invalidation = invalidation;
         }
 
-        public Func<CacheEntry<TValue>, bool> Invalidation { get; }
+        public Func<InvalidateableCacheEntry<V>, bool> Invalidation { get; }
     }
 }
